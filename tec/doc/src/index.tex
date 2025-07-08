@@ -1,0 +1,92 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry} % Add margins for better formatting
+
+\begin{document}
+
+\subsection*{Task 5}
+Determine a fair price for each of the certificates and compute it explicitly for the market parameters from Task 2) with $P_0$ equal to the price quoted on 14.06.2024, barrier level 16, bonus level 21, maturity 1 year and Cap 28.
+
+\textit{Hint: It holds that}
+\begin{align}
+\mathbb{E}_Q\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] &= P_0 Q^{(1)} - e^{-rT}K Q^{(2)},
+\end{align}
+\textit{where $Q^{(1)}$ and $Q^{(2)}$ are given by}
+\begin{align}
+Q^{(1)} &= N\left(\frac{\log(P_0/H) + (r + \frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}\right) \notag\\
+&\quad - \exp\left(-\frac{2(r + \frac{\sigma^2}{2})\log(P_0/H)}{\sigma^2}\right) N\left(\frac{-\log(P_0/H) + (r + \frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}\right),\\
+Q^{(2)} &= N\left(\frac{\log(P_0/H) + (r - \frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}\right) \notag\\
+&\quad - \exp\left(-\frac{2(r - \frac{\sigma^2}{2})\log(P_0/H)}{\sigma^2}\right) N\left(\frac{-\log(P_0/H) + (r - \frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}\right),
+\end{align}
+\textit{where $N$ denotes the cumulative distribution function of the standard normal distribution.}
+
+\subsection*{Proof of the Hint}
+
+We need to compute:
+\begin{equation}
+\mathbb{E}_Q\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]
+\end{equation}
+
+First, we split this into two parts:
+\begin{align}
+&= e^{-rT}\left(\mathbb{E}_Q\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] - K\mathbb{E}_Q\left[\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]\right)\\
+&= e^{-rT}\mathbb{E}_Q\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] - e^{-rT}K\,\mathbb{Q}\left(\min_{t \in [0,T]} P_t > H\right)
+\end{align}
+
+For the first term, we use Girsanov's theorem. Let's define a new measure by:
+\begin{equation}
+\frac{d\tilde{\mathbb{Q}}}{d\mathbb{Q}} = e^{-\frac{\sigma^2}{2}T - (-\sigma)\tilde{W}_T}
+\end{equation}
+
+Setting $\gamma = -\sigma$ and following through the calculations:
+\begin{align}
+\tilde{W}_t &= \tilde{W}_t - \gamma t = \tilde{W}_t - \sigma t\\
+\frac{d\tilde{\mathbb{Q}}}{d\mathbb{Q}} &= e^{-\frac{\sigma^2}{2}T - (-\sigma)\tilde{W}_T}
+\end{align}
+
+Under the new measure, $\tilde{W}_t$ is a Brownian motion, and:
+\begin{equation}
+dP_t = P_t(rdt + \sigma d\tilde{W}_t) = P_t((r + \sigma ^2)dt + \sigma (d\hat{W}_t)) 
+\end{equation}
+
+Therefore:
+\begin{equation}
+P_t = P_0 e^{(r + \sigma^2 - \frac{\sigma^2}{2})t + \sigma\hat{W}_t} = P_0 e^{(r + \frac{\sigma^2}{2})t + \sigma\hat{W}_t}
+\end{equation}
+
+Under this measure:
+\begin{align}
+\min_{0 \leq t \leq T} P_t > H &\Leftrightarrow \min_{0 \leq t \leq T} \left(r - \frac{\sigma^2}{2}\right)t + \sigma\tilde{W}_t > \ln\left(\frac{H}{P_0}\right)\\
+&\Leftrightarrow \max_{0 \leq t \leq T} -\left(r - \frac{\sigma^2}{2}\right)t - \sigma\tilde{W}_t \leq \ln\left(\frac{P_0}{H}\right)
+\end{align}
+
+Using the reflection principle and the joint distribution formula from Remark 5.6:
+\begin{align}
+\mathbb{Q}\left(\min_{t \in [0,T]} P_t > H\right) &= \mathbb{Q}\left(\max_{t \in [0,T]} \left(r + \frac{\sigma^2}{2}\right)t + \sigma\tilde{W}_t < \ln\left(\frac{P_0}{H}\right)\right)
+\end{align}
+
+This leads to:
+\begin{align}
+&= N\left(\frac{\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right) \notag\\
+&\quad - e^{2\mu\ln(P_0/H)/\sigma^2} N\left(\frac{-\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right)
+\end{align}
+
+Continuing with the expectation calculations:
+\begin{align}
+P_0\mathbb{E}_{\tilde{\mathbb{Q}}}\left[\frac{d\mathbb{Q}}{d\tilde{\mathbb{Q}}}\mathbf{1}_{\{A\}}\right] &= P_0\tilde{\mathbb{Q}}(A)\\
+&= P_0\,\mathbb{Q}\left(\min_{t \in [0,T]} P_t > H\right) \notag\\
+&= P_0\,\mathbb{Q}\left(\min_{t \in [0,T]} \left(r + \frac{\sigma^2}{2}\right)t + \sigma\hat{W}_t > \ln\left(\frac{H}{P_0}\right)\right)
+\end{align}
+
+Using the reflection principle again:
+\begin{align}
+&= P_0\,\mathbb{Q}\left(\max_{t \in [0,T]} -\left(r + \frac{\sigma^2}{2}\right)t - \sigma\hat{W}_t > \ln\left(\frac{P_0}{H}\right)\right)\\
+&= P_0\Bigg(N\left(\frac{\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right) \notag\\
+&\qquad - e^{2\mu\ln(P_0/H)/\sigma^2} N\left(\frac{-\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right)\Bigg)
+\end{align}
+
+Substituting back and simplifying, we obtain the final formulas for $Q^{(1)}$ and $Q^{(2)}$ as stated.
+
+\end{document}
