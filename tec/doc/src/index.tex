@@ -2,7 +2,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage[margin=1in]{geometry} % Add margins for better formatting
+\usepackage[margin=1in]{geometry}
 
 \begin{document}
 
@@ -11,7 +11,7 @@ Determine a fair price for each of the certificates and compute it explicitly fo
 
 \textit{Hint: It holds that}
 \begin{align}
-\mathbb{E}_Q\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] &= P_0 Q^{(1)} - e^{-rT}K Q^{(2)},
+\mathbb{E}_{\tilde{Q}}\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] &= P_0 Q^{(1)} - e^{-rT}K Q^{(2)},
 \end{align}
 \textit{where $Q^{(1)}$ and $Q^{(2)}$ are given by}
 \begin{align}
@@ -24,69 +24,79 @@ Q^{(2)} &= N\left(\frac{\log(P_0/H) + (r - \frac{1}{2}\sigma^2)T}{\sigma\sqrt{T}
 
 \subsection*{Proof of the Hint}
 
-We need to compute:
+We need to compute under the risk-neutral measure $\tilde{\mathbb{Q}}$:
 \begin{equation}
-\mathbb{E}_Q\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]
+\mathbb{E}_{\tilde{Q}}\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]
 \end{equation}
 
 First, we split this into two parts:
 \begin{align}
-&= e^{-rT}\left(\mathbb{E}_Q\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] - K\mathbb{E}_Q\left[\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]\right)\\
-&= e^{-rT}\mathbb{E}_Q\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] - e^{-rT}K\,\mathbb{Q}\left(\min_{t \in [0,T]} P_t > H\right)
+&= e^{-rT}\left(\mathbb{E}_{\tilde{Q}}\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] - K\mathbb{E}_{\tilde{Q}}\left[\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]\right)\\
+&= e^{-rT}\mathbb{E}_{\tilde{Q}}\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] - e^{-rT}K\,\tilde{\mathbb{Q}}\left(\min_{t \in [0,T]} P_t > H\right)
 \end{align}
 
-For the first term, we use Girsanov's theorem. Let's define a new measure by:
+Under the risk-neutral measure $\tilde{\mathbb{Q}}$, we have:
 \begin{equation}
-\frac{d\tilde{\mathbb{Q}}}{d\mathbb{Q}} = e^{-\frac{\sigma^2}{2}T - (-\sigma)\tilde{W}_T}
+P_t = P_0 e^{(r - \frac{\sigma^2}{2})t + \sigma \tilde{W}_t}
+\end{equation}
+where $\tilde{W}_t$ is a Brownian motion under $\tilde{\mathbb{Q}}$.
+
+\textbf{Computing the second term:}
+\begin{align}
+\min_{0 \leq t \leq T} P_t > H &\Leftrightarrow \min_{0 \leq t \leq T} \left(r - \frac{\sigma^2}{2}\right)t + \sigma \tilde{W}_t > \ln\left(\frac{H}{P_0}\right)
+\end{align}
+
+Using the reflection principle with $\mu = r - \frac{\sigma^2}{2}$:
+\begin{align}
+\tilde{\mathbb{Q}}\left(\min_{t \in [0,T]} P_t > H\right) &= N\left(\frac{\ln(P_0/H) + (r - \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\right) \notag\\
+&\quad - \exp\left(-\frac{2(r - \frac{\sigma^2}{2})\ln(P_0/H)}{\sigma^2}\right) N\left(\frac{-\ln(P_0/H) + (r - \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\right)
+\end{align}
+
+This gives us $Q^{(2)}$.
+
+\textbf{Computing the first term using Girsanov's theorem:}
+We define a new measure $\hat{\mathbb{Q}}$ by:
+\begin{equation}
+\frac{d\hat{\mathbb{Q}}}{d\tilde{\mathbb{Q}}} = e^{\sigma \tilde{W}_T - \frac{\sigma^2}{2}T} = \frac{P_T}{P_0 e^{rT}}
 \end{equation}
 
-Setting $\gamma = -\sigma$ and following through the calculations:
-\begin{align}
-\tilde{W}_t &= \tilde{W}_t - \gamma t = \tilde{W}_t - \sigma t\\
-\frac{d\tilde{\mathbb{Q}}}{d\mathbb{Q}} &= e^{-\frac{\sigma^2}{2}T - (-\sigma)\tilde{W}_T}
-\end{align}
+Under $\hat{\mathbb{Q}}$, define $\hat{W}_t = \tilde{W}_t - \sigma t$. By Girsanov's theorem, $\hat{W}_t$ is a Brownian motion under $\hat{\mathbb{Q}}$.
 
-Under the new measure, $\tilde{W}_t$ is a Brownian motion, and:
+We can rewrite:
 \begin{equation}
-dP_t = P_t(rdt + \sigma d\tilde{W}_t) = P_t((r + \sigma ^2)dt + \sigma (d\hat{W}_t)) 
+\tilde{W}_t = \hat{W}_t + \sigma t
 \end{equation}
 
-Therefore:
+So the price process becomes:
 \begin{equation}
-P_t = P_0 e^{(r + \sigma^2 - \frac{\sigma^2}{2})t + \sigma\hat{W}_t} = P_0 e^{(r + \frac{\sigma^2}{2})t + \sigma\hat{W}_t}
+P_t = P_0 e^{(r - \frac{\sigma^2}{2})t + \sigma \tilde{W}_t} = P_0 e^{(r - \frac{\sigma^2}{2})t + \sigma(\hat{W}_t + \sigma t)} = P_0 e^{(r + \frac{\sigma^2}{2})t + \sigma\hat{W}_t}
 \end{equation}
 
-Under this measure:
+Now we compute:
 \begin{align}
-\min_{0 \leq t \leq T} P_t > H &\Leftrightarrow \min_{0 \leq t \leq T} \left(r - \frac{\sigma^2}{2}\right)t + \sigma\tilde{W}_t > \ln\left(\frac{H}{P_0}\right)\\
-&\Leftrightarrow \max_{0 \leq t \leq T} -\left(r - \frac{\sigma^2}{2}\right)t - \sigma\tilde{W}_t \leq \ln\left(\frac{P_0}{H}\right)
+\mathbb{E}_{\tilde{Q}}\left[P_T \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] &= \mathbb{E}_{\tilde{Q}}\left[\frac{d\hat{\mathbb{Q}}}{d\tilde{\mathbb{Q}}} P_0 e^{rT} \mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]\\
+&= P_0 e^{rT} \mathbb{E}_{\hat{\mathbb{Q}}}\left[\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right]\\
+&= P_0 e^{rT} \hat{\mathbb{Q}}\left(\min_{t \in [0,T]} P_t > H\right)
 \end{align}
 
-Using the reflection principle and the joint distribution formula from Remark 5.6:
+Under $\hat{\mathbb{Q}}$, since $P_t = P_0 e^{(r + \frac{\sigma^2}{2})t + \sigma\hat{W}_t}$:
 \begin{align}
-\mathbb{Q}\left(\min_{t \in [0,T]} P_t > H\right) &= \mathbb{Q}\left(\max_{t \in [0,T]} \left(r + \frac{\sigma^2}{2}\right)t + \sigma\tilde{W}_t < \ln\left(\frac{P_0}{H}\right)\right)
+\min_{0 \leq t \leq T} P_t > H &\Leftrightarrow \min_{0 \leq t \leq T} \left(r + \frac{\sigma^2}{2}\right)t + \sigma\hat{W}_t > \ln\left(\frac{H}{P_0}\right)
 \end{align}
 
-This leads to:
+Using the reflection principle under $\hat{\mathbb{Q}}$ with $\mu = r + \frac{\sigma^2}{2}$:
 \begin{align}
-&= N\left(\frac{\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right) \notag\\
-&\quad - e^{2\mu\ln(P_0/H)/\sigma^2} N\left(\frac{-\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right)
+\hat{\mathbb{Q}}\left(\min_{t \in [0,T]} P_t > H\right) &= N\left(\frac{\ln(P_0/H) + (r + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\right) \notag\\
+&\quad - \exp\left(-\frac{2(r + \frac{\sigma^2}{2})\ln(P_0/H)}{\sigma^2}\right) N\left(\frac{-\ln(P_0/H) + (r + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}\right)
 \end{align}
 
-Continuing with the expectation calculations:
-\begin{align}
-P_0\mathbb{E}_{\tilde{\mathbb{Q}}}\left[\frac{d\mathbb{Q}}{d\tilde{\mathbb{Q}}}\mathbf{1}_{\{A\}}\right] &= P_0\tilde{\mathbb{Q}}(A)\\
-&= P_0\,\mathbb{Q}\left(\min_{t \in [0,T]} P_t > H\right) \notag\\
-&= P_0\,\mathbb{Q}\left(\min_{t \in [0,T]} \left(r + \frac{\sigma^2}{2}\right)t + \sigma\hat{W}_t > \ln\left(\frac{H}{P_0}\right)\right)
-\end{align}
+This gives us $Q^{(1)}$.
 
-Using the reflection principle again:
+\textbf{Final result:}
+Substituting back:
 \begin{align}
-&= P_0\,\mathbb{Q}\left(\max_{t \in [0,T]} -\left(r + \frac{\sigma^2}{2}\right)t - \sigma\hat{W}_t > \ln\left(\frac{P_0}{H}\right)\right)\\
-&= P_0\Bigg(N\left(\frac{\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right) \notag\\
-&\qquad - e^{2\mu\ln(P_0/H)/\sigma^2} N\left(\frac{-\ln(P_0/H) - \mu T}{\sigma\sqrt{T}}\right)\Bigg)
+\mathbb{E}_{\tilde{Q}}\left[e^{-rT}(P_T - K)\mathbf{1}_{\{\min_{t \in [0,T]} P_t > H\}}\right] &= e^{-rT} \cdot P_0 e^{rT} Q^{(1)} - e^{-rT}K Q^{(2)}\\
+&= P_0 Q^{(1)} - e^{-rT}K Q^{(2)}
 \end{align}
-
-Substituting back and simplifying, we obtain the final formulas for $Q^{(1)}$ and $Q^{(2)}$ as stated.
 
 \end{document}
